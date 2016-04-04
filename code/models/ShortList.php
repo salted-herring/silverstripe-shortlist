@@ -67,8 +67,8 @@ class ShortList extends DataObject {
 			for ($i=0; $i<10; $i++) {
 
 				// Generate a hash.
-				$hashids = new Hashids(session_id());
-				$uniqueurl = $hashids->encrypt(ShortList::get()->count() + 1, rand());
+				$gen = new RandomGenerator();
+				$uniqueurl = substr($gen->randomToken(), 0, 100);
 
 				// Is it unique?
 				if (ShortList::get()->filter('URL', $uniqueurl)->count() > 0) {

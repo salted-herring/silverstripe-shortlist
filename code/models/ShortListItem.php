@@ -11,9 +11,12 @@
  *
  **/
 class ShortListItem extends DataObject {
-	private static $has_one = array(
-		'ShortList'	=> 'ShortList',
-		'Item'		=> 'DataObject',
-		'ItemType'	=> 'Varchar(128)'
-	);
+    private static $db = array(
+        'Type'      => 'Varchar(128)'
+    );
+
+    private static $has_one = array(
+        'ShortList' => 'ShortList',
+        'Item'      => 'DataObject'
+    );
 }

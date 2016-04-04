@@ -34,14 +34,14 @@ class ShortListController extends Page_Controller
      * */
     public function initList()
     {
-	    if (!$this->isBrowser()) {
+        if (!ShortList::isBrowser()) {
             $this->httpError(404);
         }
         if ($this->request->getVar('page')) {
             $this->currentPage = $this->request->getVar('page');
         }
 
-        $shortlist = DataObject::get_one('ShortList', $filter = array('SessionID' => session_id()));
+        $shortlist = $this->getSessionShortList();
 
         if (!$shortlist || !$shortlist->exists()) {
             $shortlist = new ShortList();
@@ -90,19 +90,28 @@ class ShortListController extends Page_Controller
             $this->httpError(404);
         }
 
-        if ($request->isAjax()) {
-            return $this->addToShortListAjax(
-                $ID = $request->getVar('id'),
-                $type = $request->getVar('type'),
-                $session = $request->getVar('s')
-            );
-        }
-
-        return $this->addToShortList(
+        $add = $this->addToShortList(
             $ID = $request->getVar('id'),
             $type = $request->getVar('type'),
             $session = $request->getVar('s')
         );
+
+        if ($request->isAjax()) {
+            $shortlist = $this->getSessionShortList();
+	        $url = false;
+
+	        if ($shortlist && $shortlist->exists()) {
+	            $url = $shortlist->Link();
+	        }
+
+	        return json_encode(array(
+	            'status' => $added,
+	            'count' => $this->ShortListCount($session),
+	            'url' => $url
+	        ));
+        }
+
+        return $add;
     }
 
     public function addToShortList($ID = false, $type = null, $session = false)
@@ -111,7 +120,7 @@ class ShortListController extends Page_Controller
             return false;
         }
 
-        $shortlist = DataObject::get_one('ShortList', $filter = array('SessionID' => session_id()));
+        $shortlist = $this->getSessionShortList();
 
         if (!$shortlist || !$shortlist->exists()) {
             $shortlist = new ShortList();
@@ -124,7 +133,7 @@ class ShortListController extends Page_Controller
             $shortlistItem = new ShortListItem();
             $shortlistItem->ShortListID = $shortlist->ID;
             $shortlistItem->ItemID = $item->ID;
-            $shortlistItem->ItemType = $type;
+            $shortlistItem->Type = $type;
 
             $shortlist->ShortListItems()->add($shortlistItem);
             $shortlist->write();
@@ -133,83 +142,56 @@ class ShortListController extends Page_Controller
         return true;
     }
 
-    /**
-     * Add item to short list & return json result.
-     * */
-    public function addToShortListAjax($ID = false, $type = null, $session = false)
-    {
-        $added = $this->addToShortList($ID, $session);
-        $shortlist = DataObject::get_one('ShortList', $filter = array('SessionID' => session_id()));
-        $url = false;
-
-        if ($shortlist && $shortlist->exists()) {
-            $url = $shortlist->Link();
-        }
-
-        return json_encode(array(
-            'status' => $added,
-            'count' => $this->ShortListCount($session),
-            'url' => $url
-        ));
-    }
-
     public function remove($request) {
         if (is_null(session_id()) ||
-        	!$request->getVar('id') ||
-        	!$request->getVar('type') ||
-        	!$request->getVar('s') ||
-        	$request->getVar('s') != session_id() ||
-        	!ShortList::isBrowser()
+            !$request->getVar('id') ||
+            !$request->getVar('type') ||
+            !$request->getVar('s') ||
+            $request->getVar('s') != session_id() ||
+            !ShortList::isBrowser()
         ) {
             $this->httpError(404);
         }
 
-/*
+        $remove = $this->removeFromShortList(
+            $ID = $request->getVar('id'),
+            $type = $request->getVar('type'),
+            $session = $request->getVar('s')
+        );
+
         if ($request->isAjax()) {
-            return $this->removeFromShortListAjax($request->getVar('id'), $request->getVar('s'));
+            $shortlist = $this->getSessionShortList();
+	        $url = '#';
+
+	        if ($shortlist && $shortlist->exists()) {
+	            $url = $shortlist->Link();
+	        }
+
+	        return json_encode(array(
+	            'status' => $remove,
+	            'count' => $this->shortListCount($session),
+	            'url' => $url
+	        ));
         }
 
-        return $this->removeFromShortList($request->getVar('id'), $request->getVar('s'));
-*/
+        return $remove;
     }
 
-    public function removeFromShortList($ID = false, $session = false)
+    private function removeFromShortList($ID = false, $type = null, $session = false)
     {
-        if (is_null(session_id()) || !$ID || !$session || $session != session_id() || !ShortList::isBrowser()) {
-            return false;
-        }
+        $shortlist = $this->getSessionShortList();
 
-        $shortlist = ShortList::get()->filter(array('SessionID' => session_id()));
-
-        if (!$shortlist->first()) {
+        if (!$shortlist || !$shortlist->exists()) {
             return true;
         }
 
-        $event = Event::get()->filter(array('ID' => $ID));
+		$item = DataObject::get_one('ShortListItem', $filter = "Type = '" . $type . "' AND ItemID = " . $ID);
 
-        if ($event) {
-            $shortlist->first()->Events()->removeByID($event->first()->ID);
-            $shortlist->first()->write();
+        if ($item && $item->exists()) {
+	        $item->delete();
         }
 
         return true;
-    }
-
-    public function removeFromShortListAjax($ID = false, $session = false)
-    {
-        $removed = $this->removeFromShortList($ID, $session);
-        $shortlist = ShortList::get()->filter(array('SessionID' => session_id()));
-        $url = '#';
-
-        if ($shortlist->first()->Events()->count() > 0) {
-            $url = $shortlist->first()->Link();
-        }
-
-        return json_encode(array(
-            'status' => $removed,
-            'count' => $this->shortListCount($session),
-            'url' => $url
-        ));
     }
 
     /**
@@ -224,7 +206,7 @@ class ShortListController extends Page_Controller
             return false;
         }
 
-        $shortlist = DataObject::get_one('ShortList', $filter = array('SessionID' => session_id()));
+        $shortlist = $this->getSessionShortList();
 
         if (!$shortlist || !$shortlist->exists()) {
             return 0;
@@ -232,8 +214,6 @@ class ShortListController extends Page_Controller
 
         return $shortlist->Items()->count();
     }
-
-
 
 
     public function paginatedPages()
@@ -278,5 +258,10 @@ class ShortListController extends Page_Controller
         }
 
         return '?page=1';
+    }
+
+
+    private function getSessionShortList() {
+	    return DataObject::get_one('ShortList', $filter = array('SessionID' => session_id()));
     }
 }
