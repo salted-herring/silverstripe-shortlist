@@ -1,0 +1,6 @@
+---
+Name: shortlist
+After: 'framework/*','cms/*'
+---
+ShortList:
+  URLSegment: '/shortlist/'

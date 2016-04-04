@@ -1,0 +1,19 @@
+{
+	"name": "saltedherring/silverstripe-shortlist",
+	"description": "Shortlist module for SilverStripe CMS",
+	"type": "silverstripe-module",
+
+	"homepage": "https://github.com/salted-herring/silverstripe-shortlist",
+	"license": "BSD-3-Clause",
+	"keywords": ["silverstripe", "shortlist"],
+	"authors": [
+		{
+			"name": "Salted Herring",
+			"homepage": "http://saltedherring.com"
+		}
+	],
+	"require": {
+		"php": ">=5.3.3",
+		"hashids/hashids": "^1.0"
+	}
+}
