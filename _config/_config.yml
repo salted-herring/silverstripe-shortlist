@@ -4,4 +4,4 @@ After: 'framework/*','cms/*'
 ---
 ShortList:
   URLSegment: '/shortlist/'
-  PaginationCount: 1
+  PaginationCount: 12

@@ -17,6 +17,8 @@ class ShortListController extends Page_Controller
     {
         parent::init();
 
+        Session::start();
+
         if ($this->request->getVar('page')) {
             $this->currentPage = $this->request->getVar('page');
         }
@@ -28,8 +30,11 @@ class ShortListController extends Page_Controller
      * */
     public function index($request)
     {
+
         if (($shortlist = $this->getSessionShortList())) {
-            return $this->redirect($shortlist->URL);
+            return $this->redirect(Config::inst()->get('ShortList', 'URLSegment') . $shortlist->URL);
+        } else {
+            $this->initList();
         }
 
         // render with empty template.
@@ -58,10 +63,6 @@ class ShortListController extends Page_Controller
     {
         if (!ShortList::isBrowser()) {
             return $this->httpError(404);
-        }
-
-        if ($this->request->getVar('page')) {
-            $this->currentPage = $this->request->getVar('page');
         }
 
         $shortlist = $this->getSessionShortList();
@@ -114,17 +115,23 @@ class ShortListController extends Page_Controller
             $shortlist->write();
         }
 
-        $item = DataObject::get_by_id($type, $ID);
+        // check whether the itme is already in the list
+        // before attempting to add it.
+        $existing = $shortlist->ShortListItems()->filterAny(
+            array('ItemID' => $ID, 'ItemType' => $type)
+        );
 
-        if ($item && $item->exists()) {
-            $shortlistItem = new ShortListItem();
-            $shortlistItem->ShortListID = $shortlist->ID;
-            $shortlistItem->ItemID = $item->ID;
-            $shortlistItem->ItemType = $type;
-
-            $shortlist->ShortListItems()->add($shortlistItem);
-            $shortlist->write();
+        if ($existing->count() == 1) {
+            return true;
         }
+
+        $shortlistItem = new ShortListItem();
+        $shortlistItem->ShortListID = $shortlist->ID;
+        $shortlistItem->ItemID = $ID;
+        $shortlistItem->ItemType = $type;
+
+        $shortlist->ShortListItems()->add($shortlistItem);
+        $shortlist->write();
 
         return true;
     }
@@ -141,7 +148,7 @@ class ShortListController extends Page_Controller
             return $this->httpError(404);
         }
 
-        if (strpos($request->getVar('url'), 'remove') !== false) {
+        if (strpos($request->getURL(), 'remove') !== false) {
             $status = $this->removeFromShortList(
                 $ID = $request->getVar('id'),
                 $type = $request->getVar('type'),
@@ -171,7 +178,7 @@ class ShortListController extends Page_Controller
             ));
         }
 
-        return $status;
+        return $this->redirectBack();
     }
 
     /**

@@ -1,0 +1,8 @@
+Page:
+  page1:
+    Title: test
+  page2:
+    Title: test2
+ShortList:
+  test:
+    SessionID: 123

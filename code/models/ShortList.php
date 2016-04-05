@@ -64,29 +64,15 @@ class ShortList extends DataObject
                 return false;
             }
 
-            // Go through 10 attempts at making a unique URL.
-            for ($i=0; $i<10; $i++) {
-                // Generate a hash.
-                $gen = new RandomGenerator();
-                $uniqueurl = substr($gen->randomToken(), 0, 100);
+            $gen = new RandomGenerator();
+            $uniqueurl = substr($gen->randomToken(), 0, 32);
 
-                // Is it unique?
-                if (ShortList::get()->filter('URL', $uniqueurl)->count() > 0) {
-                    // Not unique? Try again.
-                    continue;
-                }
-
-                if (is_null($uniqueurl)) {
-                    break;
-                }
-
-                // Save the unique URL.
-                $this->URL = $uniqueurl;
-                $this->UserAgent = $_SERVER['HTTP_USER_AGENT'];
-
-                // Done.
-                break;
+            while (ShortList::get()->filter('URL', $uniqueurl)->count() > 0) {
+                $uniqueurl = substr($gen->randomToken(), 0, 32);
             }
+
+            $this->URL = $uniqueurl;
+            $this->UserAgent = Controller::curr()->getRequest()->getHeader('User-Agent');
         }
     }
 
