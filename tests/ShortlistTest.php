@@ -2,7 +2,7 @@
 
 class ShortlistTest extends FunctionalTest
 {
-    public static $fixture_file = 'fixtures.yml';
+    protected static $fixture_file = 'fixtures.yml';
 
     public function setUp()
     {
