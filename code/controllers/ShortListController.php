@@ -13,6 +13,10 @@ class ShortListController extends Page_Controller
         '$URL!'     => 'renderList',
     );
 
+    private static $extensions = array(
+        'ShortListPaginationExtension'
+    );
+
     public function init()
     {
         parent::init();
@@ -30,11 +34,21 @@ class ShortListController extends Page_Controller
      * */
     public function index($request)
     {
-
         if (($shortlist = $this->getSessionShortList())) {
             return $this->redirect(Config::inst()->get('ShortList', 'URLSegment') . $shortlist->URL);
         } else {
-            $this->initList();
+            /*
+if (!ShortList::isBrowser()) {
+                return $this->httpError(404);
+            }
+*/
+
+            $shortlist = $this->getSessionShortList();
+
+            if (!$shortlist || !$shortlist->exists()) {
+                $shortlist = new ShortList();
+                $shortlist->write();
+            }
         }
 
         // render with empty template.
@@ -56,23 +70,6 @@ class ShortListController extends Page_Controller
         return $url;
     }
 
-    /**
-     * Create a new list if necessary. If a bot, do nothing!
-     * */
-    public function initList()
-    {
-        if (!ShortList::isBrowser()) {
-            return $this->httpError(404);
-        }
-
-        $shortlist = $this->getSessionShortList();
-
-        if (!$shortlist || !$shortlist->exists()) {
-            $shortlist = new ShortList();
-            $shortlist->write();
-        }
-    }
-
     public function renderList($request)
     {
         $shortlist = DataObject::get_one('ShortList', $filter = array('URL' => $request->param('URL')));
@@ -80,15 +77,22 @@ class ShortListController extends Page_Controller
         if (is_null(session_id()) ||
             !$request->param('URL') ||
             !$shortlist ||
-            !$shortlist->exists() ||
-            !ShortList::isBrowser()
+            !$shortlist->exists()
         ) {
             return $this->httpError(404);
         }
 
+        $link = false;
+        $count = 0;
+
+        if ($shortlist && $shortlist->exists()) {
+            $link = $shortlist->Link();
+            $count = $shortlist->ShortListItems()->Count();
+        }
+
         return $this->customise(array(
-            'ShortlistURL' => $shortlist && $shortlist->exists() ? $shortlist->Link() : false,
-            'ShortlistCount' => $shortlist && $shortlist->exists() ? $shortlist->ShortListItems()->Count() : 0
+            'ShortlistURL' => $link,
+            'ShortlistCount' => $count
         ))->renderWith(
             array('ShortList', 'Page')
         );
@@ -142,8 +146,7 @@ class ShortListController extends Page_Controller
             !$request->getVar('id') ||
             !$request->getVar('type') ||
             !$request->getVar('s') ||
-            $request->getVar('s') != session_id() ||
-            !ShortList::isBrowser()
+            $request->getVar('s') != session_id()
         ) {
             return $this->httpError(404);
         }
@@ -220,7 +223,7 @@ class ShortListController extends Page_Controller
      * */
     public function shortListCount($session = false)
     {
-        if (is_null(session_id()) || !$session || $session != session_id() || !ShortList::isBrowser()) {
+        if (is_null(session_id()) || !$session || $session != session_id()) {
             return false;
         }
 
@@ -232,55 +235,6 @@ class ShortListController extends Page_Controller
 
         return $shortlist->Items()->count();
     }
-
-
-    /**
-     * Get a paginated list of the shortlist items.
-     *
-     * @return mixed the paginated list of items, or false if the list cannot be found.
-     * */
-    public function paginatedItems()
-    {
-        if (!$this->getRequest()->param('URL') || !ShortList::isBrowser()) {
-            return false;
-        }
-
-        $items = false;
-        $list = DataObject::get_one('ShortList', $filter = array('URL' => $this->getRequest()->param('URL')));
-
-        if ($list) {
-            $items = $list->ShortListItems();
-        }
-
-        $this->list = new PaginatedList($items, $this->getRequest());
-        $this->list->setPageLength(Config::inst()->get('ShortList', 'PaginationCount'));
-        $this->list->setPaginationGetVar('page');
-
-        if ($this->currentPage) {
-            $this->list->setCurrentPage($this->currentPage);
-        }
-
-        return $this->list;
-    }
-
-    public function nextPage()
-    {
-        if ($this->list->CurrentPage() < $this->list->TotalPages()) {
-            return '?page=' . ($this->list->CurrentPage() + 1);
-        }
-
-        return false;
-    }
-
-    public function prevPage()
-    {
-        if ($this->list->CurrentPage() > 1) {
-            return '?page=' . ($this->list->CurrentPage() - 1);
-        }
-
-        return false;
-    }
-
 
     private function getSessionShortList()
     {

@@ -16,7 +16,7 @@ class ShortlistTest extends FunctionalTest
     public function testAddPageToShortlist() {
         $testpage = $this->objFromFixture('Page', 'page1');
 
-        $this->get('shortlist/add?id=' . $testpage->ID . '&type=Page&s=' . session_id() . '&output=0');
+        $this->get('shortlist/add?id=' . $testpage->ID . '&type=Page&s=' . session_id());
 
         $shortlist = DataObject::get_one('ShortList', array('SessionID' => session_id()));
 
