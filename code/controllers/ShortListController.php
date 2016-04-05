@@ -1,17 +1,15 @@
 <?php
-namespace SaltedHerring\ShortList;
 
 class ShortListController extends Page_Controller
 {
     private static $allowed_actions = array(
-        'add',
-        'remove',
-        'renderList'
+        'renderList',
+        'addOrRemove'
     );
 
     private static $url_handlers = array(
-        'add'       => 'add',
-        'remove'    => 'remove',
+        'add'       => 'addOrRemove',
+        'remove'    => 'addOrRemove',
         '$URL!'     => 'renderList',
     );
 
@@ -30,14 +28,27 @@ class ShortListController extends Page_Controller
      * */
     public function index($request)
     {
-        if ($this->getSessionShortList()) {
-            return $this->renderWith(
-                array('Page', 'ShortList')
-            );
-        } else {
-            // render with not found template.
-            return $this->renderWith(array('Page', 'ShortList_empty'));
+        if (($shortlist = $this->getSessionShortList())) {
+            return $this->redirect($shortlist->URL);
         }
+
+        // render with empty template.
+        return $this->renderWith(array('Page', 'ShortList_empty'));
+    }
+
+    /**
+     * Get the absolute URL of this controller.
+     * */
+    public function Link($action = null)
+    {
+        $shortlist = $this->getSessionShortList();
+        $url = Config::inst()->get('ShortList', 'URLSegment');
+
+        if ($shortlist) {
+            $url .= $shortlist->URL;
+        }
+
+        return $url;
     }
 
     /**
@@ -46,8 +57,9 @@ class ShortListController extends Page_Controller
     public function initList()
     {
         if (!ShortList::isBrowser()) {
-            $this->httpError(404);
+            return $this->httpError(404);
         }
+
         if ($this->request->getVar('page')) {
             $this->currentPage = $this->request->getVar('page');
         }
@@ -70,7 +82,7 @@ class ShortListController extends Page_Controller
             !$shortlist->exists() ||
             !ShortList::isBrowser()
         ) {
-            $this->httpError(404);
+            return $this->httpError(404);
         }
 
         return $this->customise(array(
@@ -84,48 +96,11 @@ class ShortListController extends Page_Controller
     /**
      * Add an item to the shortlist.
      *
-     * $request params:
-     *
-     * * type   - classname of the
-     * * id     - id of the object to add.
-     * * s      - session id.
+     * @param ID id of the object to add.
+     * @param type classname of the item to remove
+     * @param session session id.
      *
      * */
-    public function add($request)
-    {
-        if (is_null(session_id()) ||
-            !$request->getVar('id') ||
-            !$request->getVar('type') ||
-            !$request->getVar('s') ||
-            $request->getVar('s') != session_id() ||
-            !ShortList::isBrowser()) {
-            $this->httpError(404);
-        }
-
-        $add = $this->addToShortList(
-            $ID = $request->getVar('id'),
-            $type = $request->getVar('type'),
-            $session = $request->getVar('s')
-        );
-
-        if ($request->isAjax()) {
-            $shortlist = $this->getSessionShortList();
-            $url = false;
-
-            if ($shortlist && $shortlist->exists()) {
-                $url = $shortlist->Link();
-            }
-
-            return json_encode(array(
-                'status' => $add,
-                'count' => $this->ShortListCount($session),
-                'url' => $url
-            ));
-        }
-
-        return $add;
-    }
-
     public function addToShortList($ID = false, $type = null, $session = false)
     {
         if (!$ID || is_null($type) || !$session) {
@@ -154,7 +129,7 @@ class ShortListController extends Page_Controller
         return true;
     }
 
-    public function remove($request)
+    public function addOrRemove($request)
     {
         if (is_null(session_id()) ||
             !$request->getVar('id') ||
@@ -163,33 +138,50 @@ class ShortListController extends Page_Controller
             $request->getVar('s') != session_id() ||
             !ShortList::isBrowser()
         ) {
-            $this->httpError(404);
+            return $this->httpError(404);
         }
 
-        $remove = $this->removeFromShortList(
-            $ID = $request->getVar('id'),
-            $type = $request->getVar('type'),
-            $session = $request->getVar('s')
-        );
+        if (strpos($request->getVar('url'), 'remove') !== false) {
+            $status = $this->removeFromShortList(
+                $ID = $request->getVar('id'),
+                $type = $request->getVar('type'),
+                $session = $request->getVar('s')
+            );
+        } else {
+            $status = $this->addToShortList(
+                $ID = $request->getVar('id'),
+                $type = $request->getVar('type'),
+                $session = $request->getVar('s')
+            );
+        }
+
 
         if ($request->isAjax()) {
             $shortlist = $this->getSessionShortList();
-            $url = '#';
+            $url = false;
 
             if ($shortlist && $shortlist->exists()) {
                 $url = $shortlist->Link();
             }
 
             return json_encode(array(
-                'status' => $remove,
+                'status' => $status,
                 'count' => $this->shortListCount($session),
                 'url' => $url
             ));
         }
 
-        return $remove;
+        return $status;
     }
 
+    /**
+     * Remove an item from the shortlist.
+     *
+     * @param ID id of the object to remove.
+     * @param type classname of the item to remove
+     * @param session session id.
+     *
+     * */
     private function removeFromShortList($ID = false, $type = null, $session = false)
     {
         $shortlist = $this->getSessionShortList();
@@ -202,6 +194,8 @@ class ShortListController extends Page_Controller
 
         if ($item && $item->exists()) {
             $item->delete();
+        } else {
+	        return false;
         }
 
         return true;
@@ -229,6 +223,11 @@ class ShortListController extends Page_Controller
     }
 
 
+	/**
+	 * Get a paginated list of the shortlist items.
+	 *
+	 * @return mixed the paginated list of items, or false if the list cannot be found.
+	 * */
     public function paginatedItems()
     {
         if (!$this->getRequest()->param('URL') || !ShortList::isBrowser()) {
@@ -275,20 +274,5 @@ class ShortListController extends Page_Controller
     private function getSessionShortList()
     {
         return DataObject::get_one('ShortList', $filter = array('SessionID' => session_id()));
-    }
-
-    /**
-     * Get the absolute URL of this controller.
-     * */
-    public function Link($action = null)
-    {
-        $shortlist = $this->getSessionShortList();
-        $url = Config::inst()->get('ShortList', 'URLSegment');
-
-        if ($shortlist) {
-            $url .= $shortlist->URL;
-        }
-
-        return $url;
     }
 }

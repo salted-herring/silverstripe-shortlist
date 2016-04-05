@@ -1,4 +1,7 @@
 # silverstripe-shortlist
+
+[![Build Status](https://scrutinizer-ci.com/g/salted-herring/silverstripe-shortlist/badges/build.png?b=master)](https://scrutinizer-ci.com/g/salted-herring/silverstripe-shortlist/build-status/master)
+
 Shortlist module for SilverStripe
 
 This module allows for front end users to create shortlists of pages or dataobjects which exist within the site.
