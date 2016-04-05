@@ -28,7 +28,7 @@ class ShortlistTest extends FunctionalTest
     public function testAddPageToShortlist() {
         $testpage = $this->objFromFixture('Page', 'page1');
 
-        $this->get('shortlist/add?id=' . $testpage->ID . '&type=Page&s=' . session_id());
+        $response = $this->get('shortlist/add?id=' . $testpage->ID . '&type=Page&s=' . session_id() . '&output=0');
 
         $shortlist = DataObject::get_one('ShortList', array('SessionID' => session_id()));
 
@@ -39,11 +39,11 @@ class ShortlistTest extends FunctionalTest
         $shortlist = $this->objFromFixture('ShortList', 'test');
         $testpage = $this->objFromFixture('Page', 'page1');
 
-        $this->get('shortlist/add?id=' . $testpage->ID . '&type=Page&s=' . session_id());
+        $this->get('shortlist/add?id=' . $testpage->ID . '&type=Page&s=' . session_id() . '&output=0');
 
         $shortlist = DataObject::get_one('ShortList', array('SessionID' => session_id()));
 
-        $this->get('shortlist/remove?id=' . $testpage->ID . '&type=Page&s=' . session_id());
+        $this->get('shortlist/remove?id=' . $testpage->ID . '&type=Page&s=' . session_id() . '&output=0');
 
         $this->assertEquals($shortlist->ShortListItems()->Count(), 0);
     }

@@ -117,15 +117,13 @@ class ShortListController extends Page_Controller
 
         // check whether the itme is already in the list
         // before attempting to add it.
-        /*
-$existing = $shortlist->ShortListItems()->filterAny(
+        $existing = $shortlist->ShortListItems()->filterAny(
             array('ItemID' => $ID, 'ItemType' => $type)
         );
 
         if ($existing->count() == 1) {
             return true;
         }
-*/
 
         $shortlistItem = new ShortListItem();
         $shortlistItem->ShortListID = $shortlist->ID;
@@ -180,6 +178,10 @@ $existing = $shortlist->ShortListItems()->filterAny(
             ));
         }
 
+        if (array_key_exists('output', $request->getVars())) {
+            return true;
+        }
+
         return $this->redirectBack();
     }
 
@@ -204,7 +206,7 @@ $existing = $shortlist->ShortListItems()->filterAny(
         if ($item && $item->exists()) {
             $item->delete();
         } else {
-	        return false;
+            return false;
         }
 
         return true;
@@ -232,11 +234,11 @@ $existing = $shortlist->ShortListItems()->filterAny(
     }
 
 
-	/**
-	 * Get a paginated list of the shortlist items.
-	 *
-	 * @return mixed the paginated list of items, or false if the list cannot be found.
-	 * */
+    /**
+     * Get a paginated list of the shortlist items.
+     *
+     * @return mixed the paginated list of items, or false if the list cannot be found.
+     * */
     public function paginatedItems()
     {
         if (!$this->getRequest()->param('URL') || !ShortList::isBrowser()) {
