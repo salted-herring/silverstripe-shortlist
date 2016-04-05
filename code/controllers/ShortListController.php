@@ -1,5 +1,5 @@
 <?php
-namespace SaltedHerring/ShortList;
+namespace SaltedHerring\ShortList;
 
 class ShortListController extends Page_Controller
 {
