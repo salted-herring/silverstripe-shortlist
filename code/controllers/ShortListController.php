@@ -1,4 +1,5 @@
 <?php
+namespace SaltedHerring/ShortList;
 
 class ShortListController extends Page_Controller
 {
@@ -29,9 +30,8 @@ class ShortListController extends Page_Controller
      * */
     public function index($request)
     {
-        if (($shortlist = $this->getSessionShortList())) {
-            return $this->customise(array(
-            ))->renderWith(
+        if ($this->getSessionShortList()) {
+            return $this->renderWith(
                 array('Page', 'ShortList')
             );
         } else {
@@ -117,7 +117,7 @@ class ShortListController extends Page_Controller
             }
 
             return json_encode(array(
-                'status' => $added,
+                'status' => $add,
                 'count' => $this->ShortListCount($session),
                 'url' => $url
             ));
