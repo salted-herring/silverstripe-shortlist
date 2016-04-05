@@ -117,13 +117,15 @@ class ShortListController extends Page_Controller
 
         // check whether the itme is already in the list
         // before attempting to add it.
-        $existing = $shortlist->ShortListItems()->filterAny(
+        /*
+$existing = $shortlist->ShortListItems()->filterAny(
             array('ItemID' => $ID, 'ItemType' => $type)
         );
 
         if ($existing->count() == 1) {
             return true;
         }
+*/
 
         $shortlistItem = new ShortListItem();
         $shortlistItem->ShortListID = $shortlist->ID;
