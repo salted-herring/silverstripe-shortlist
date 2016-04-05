@@ -10,13 +10,19 @@
  * * Provide a preview for the item with forTemplate()
  *
  **/
-class ShortListItem extends DataObject {
+class ShortListItem extends DataObject
+{
     private static $db = array(
-        'Type'      => 'Varchar(128)'
+        'ItemType'  => 'Varchar(128)',
+        'ItemID'    => 'Varchar(12)'
     );
 
     private static $has_one = array(
-        'ShortList' => 'ShortList',
-        'Item'      => 'DataObject'
+        'ShortList' => 'ShortList'
     );
+
+    public function getActualRecord()
+    {
+        return DataObject::get_by_id($this->ItemType, $this->ItemID);
+    }
 }
