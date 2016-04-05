@@ -13,7 +13,7 @@
 		}
 	],
 	"require": {
-		"silverstripe/framework": "dev-master",
-		"silverstripe/cms": "dev-master"
+		"silverstripe/framework": "~3.3",
+		"silverstripe/cms": "~3.3"
 	}
 }
