@@ -4,6 +4,18 @@ class ShortlistTest extends FunctionalTest
 {
     public static $fixture_file = 'fixtures.yml';
 
+    public function setUp()
+    {
+        parent::setUp();
+        SS_Datetime::set_mock_now('2013-10-10 20:00:00');
+    }
+
+    public function tearDown()
+    {
+        SS_Datetime::clear_mock_now();
+        parent::tearDown();
+    }
+
 	public function testShortlistCreation()
 	{
         $shortlists = ShortList::get();
@@ -15,8 +27,6 @@ class ShortlistTest extends FunctionalTest
 
     public function testAddPageToShortlist() {
         $testpage = $this->objFromFixture('Page', 'page1');
-
-        echo session_id();
 
         $this->get('shortlist/add?id=' . $testpage->ID . '&type=Page&s=' . session_id());
 
