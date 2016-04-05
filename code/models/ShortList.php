@@ -95,8 +95,8 @@ class ShortList extends DataObject
         // Regular expression to match common browsers
         $browserlist = '/(opera|aol|msie|firefox|chrome|konqueror|safari|netscape|navigator|mosaic|lynx|amaya|omniweb|avant|camino|flock|seamonkey|mozilla|gecko)+/i';
 
-        $validBrowser = preg_match($browserlist, $_SERVER['HTTP_USER_AGENT']) === 1;
+        $validBrowser = preg_match($browserlist, Controller::curr()->getRequest()->getHeader('User-Agent')]) === 1;
 
-        return $validBrowser;// && !empty($_SERVER['HTTP_REFERER']);
+        return $validBrowser;
     }
 }
