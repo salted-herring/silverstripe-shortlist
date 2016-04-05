@@ -16,7 +16,7 @@ composer require saltedherring/silverstripe-shortlist
 
 Afterwards run a `dev/build`
 
-## Confiuration Options
+## Configuration Options
 
 _config/_config.yml:
 
@@ -33,6 +33,14 @@ ShortList:
 The base URL segment can be modified here, as can the pagination count (for the page that displays the actual list of items).
 
 - [ ] Ensure that URL Segment can dynamically generate the route.
+
+
+## ShortList Object requirements
+
+For an object to be able to be added to the shortlist it must:
+
+- Provide a `Link` function
+- Extend `ShortListExtension`
 
 ## Front-end
 
