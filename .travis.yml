@@ -2,25 +2,24 @@ language: php
 php:
  - 5.3
 
-
-sudo: false
-
 env:
- - DB=MYSQL CORE_RELEASE=3.0
- - DB=MYSQL CORE_RELEASE=3.1
- - DB=MYSQL CORE_RELEASE=3.2
- - DB=PGSQL CORE_RELEASE=3.0
- - DB=PGSQL CORE_RELEASE=3.1
- - DB=PGSQL CORE_RELEASE=3.2
- - DB=SQLITE3 CORE_RELEASE=3.0
- - DB=SQLITE3 CORE_RELEASE=3.1
- - DB=SQLITE3 CORE_RELEASE=3.2
+  matrix:
+   - DB=MYSQL CORE_RELEASE=3.0
+   - DB=MYSQL CORE_RELEASE=3.1
+   - DB=MYSQL CORE_RELEASE=master
+   - DB=PGSQL CORE_RELEASE=master
+
+matrix:
+  include:
+    - php: 5.4
+      env: DB=MYSQL CORE_RELEASE=master
 
 before_script:
  - phpenv rehash
+ - composer self-update
  - git clone git://github.com/silverstripe-labs/silverstripe-travis-support.git ~/travis-support
  - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss
  - cd ~/builds/ss
 
 script:
- - phpunit silverstripe-shortlist/tests/
+ - vendor/bin/phpunit silverstripe-shortlist/tests/
