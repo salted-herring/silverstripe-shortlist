@@ -16,7 +16,7 @@
             "email": "simon@saltedherring.com",
             "homepage": "http://www.saltedherring.com",
             "role": "Developer"
-        },
+        }
     ],
     "require": {
         "silverstripe/framework": "~3.3",
