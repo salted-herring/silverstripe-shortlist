@@ -1,19 +1,25 @@
 {
-	"name": "saltedherring/silverstripe-shortlist",
-	"description": "Shortlist module for SilverStripe CMS",
-	"type": "silverstripe-module",
+    "name": "salted-herring/silverstripe-shortlist",
+    "description": "Shortlist module for SilverStripe CMS",
+    "type": "silverstripe-module",
 
-	"homepage": "https://github.com/salted-herring/silverstripe-shortlist",
-	"license": "BSD-3-Clause",
-	"keywords": ["silverstripe", "shortlist"],
-	"authors": [
-		{
-			"name": "Salted Herring",
-			"homepage": "http://saltedherring.com"
-		}
-	],
-	"require": {
-		"silverstripe/framework": "~3.3",
-		"silverstripe/cms": "~3.3"
-	}
+    "homepage": "https://github.com/salted-herring/silverstripe-shortlist",
+    "license": "BSD-3-Clause",
+    "keywords": ["silverstripe", "shortlist"],
+    "authors": [
+        {
+            "name": "Salted Herring",
+            "homepage": "http://saltedherring.com"
+        },
+        {
+            "name": "Simon Winter",
+            "email": "simon@saltedherring.com",
+            "homepage": "http://www.saltedherring.com",
+            "role": "Developer"
+        },
+    ],
+    "require": {
+        "silverstripe/framework": "~3.3",
+        "silverstripe/cms": "~3.3"
+    }
 }
