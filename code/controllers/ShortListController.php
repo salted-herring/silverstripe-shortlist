@@ -116,6 +116,7 @@ if (!ShortList::isBrowser()) {
 
         if (!$shortlist || !$shortlist->exists()) {
             $shortlist = new ShortList();
+            $shortlist->SessionID = $session;
             $shortlist->write();
         }
 
@@ -237,6 +238,11 @@ if (!ShortList::isBrowser()) {
     }
 
     private function getSessionShortList()
+    {
+        return DataObject::get_one('ShortList', $filter = array('SessionID' => session_id()));
+    }
+
+    public static function getShortListSession()
     {
         return DataObject::get_one('ShortList', $filter = array('SessionID' => session_id()));
     }
