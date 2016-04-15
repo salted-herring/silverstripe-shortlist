@@ -18,5 +18,10 @@ before_script:
  - php ~/travis-support/travis_setup.php --source `pwd` --target ~/builds/ss --require silverstripe/behat-extension:1.0,silverstripe/testsession:dev-master
  - cd ~/builds/ss
 
+
+cache:
+  directories:
+    - $HOME/.composer/cache
+
 script:
  - vendor/bin/phpunit silverstripe-shortlist/tests/
