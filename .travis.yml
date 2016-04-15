@@ -9,7 +9,7 @@ env:
 matrix:
   include:
     - php: 5.5
-      env: DB=MYSQL CORE_RELEASE=master
+      env: DB=MYSQL CORE_RELEASE=3.3
 
 before_script:
  - phpenv rehash
