@@ -46,6 +46,8 @@ class ShortlistTest extends FunctionalTest
         Session::start();
         $sessionID = session_id();
 
+        echo $sessionID;
+
         $response = $this->get('shortlist/add?id=' . $testpage->ID . '&type=Page&s=' . $sessionID);
 
         $shortlist = DataObject::get_one('ShortList', array('SessionID' => $sessionID));
