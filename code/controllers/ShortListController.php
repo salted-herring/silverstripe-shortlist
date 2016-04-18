@@ -4,12 +4,12 @@ class ShortListController extends Page_Controller
 {
     private static $allowed_actions = array(
         'renderList',
-        'addOrRemove'
+        'performAction'
     );
 
     private static $url_handlers = array(
-        'add'       => 'addOrRemove',
-        'remove'    => 'addOrRemove',
+        'add'       => 'performAction',
+        'remove'    => 'performAction',
         '$URL!'     => 'renderList',
     );
 
@@ -98,50 +98,7 @@ if (!ShortList::isBrowser()) {
         );
     }
 
-    /**
-     * Add an item to the shortlist.
-     *
-     * @param ID id of the object to add.
-     * @param type classname of the item to remove
-     * @param session session id.
-     *
-     * */
-    public function addToShortList($ID = false, $type = null, $session = false)
-    {
-        if (!$ID || is_null($type) || !$session) {
-            return false;
-        }
-
-        $shortlist = $this->getSessionShortList();
-
-        if (!$shortlist || !$shortlist->exists()) {
-            $shortlist = new ShortList();
-            $shortlist->SessionID = $session;
-            $shortlist->write();
-        }
-
-        // check whether the itme is already in the list
-        // before attempting to add it.
-        $existing = $shortlist->ShortListItems()->filterAny(
-            array('ItemID' => $ID, 'ItemType' => $type)
-        );
-
-        if ($existing->count() == 1) {
-            return true;
-        }
-
-        $shortlistItem = new ShortListItem();
-        $shortlistItem->ShortListID = $shortlist->ID;
-        $shortlistItem->ItemID = $ID;
-        $shortlistItem->ItemType = $type;
-
-        $shortlist->ShortListItems()->add($shortlistItem);
-        $shortlist->write();
-
-        return true;
-    }
-
-    public function addOrRemove($request)
+    public function performAction($request)
     {
         if (is_null(session_id()) ||
             !$request->getVar('id') ||
@@ -152,20 +109,29 @@ if (!ShortList::isBrowser()) {
             return $this->httpError(404);
         }
 
-        if (strpos($request->getURL(), 'remove') !== false) {
-            $status = $this->removeFromShortList(
-                $ID = $request->getVar('id'),
-                $type = $request->getVar('type'),
-                $session = $request->getVar('s')
-            );
-        } else {
-            $status = $this->addToShortList(
-                $ID = $request->getVar('id'),
-                $type = $request->getVar('type'),
-                $session = $request->getVar('s')
-            );
-        }
+        $matches = array();
+        preg_match('/remove|add/', $request->getURL(), $matches);
 
+        switch ($matches[0]) {
+            case 'add':
+                $action = new AddToshortlistAction();
+                $status = $action->performAction(
+                    $shortlist = $this->getSessionShortList(),
+                    $ID = $request->getVar('id'),
+                    $type = $request->getVar('type'),
+                    $session = $request->getVar('s')
+                );
+                break;
+            case 'remove':
+                $action = new RemoveFromshortlistAction();
+                $status = $action->performAction(
+                    $shortlist = $this->getSessionShortList(),
+                    $ID = $request->getVar('id'),
+                    $type = $request->getVar('type'),
+                    $session = $request->getVar('s')
+                );
+                break;
+        }
 
         if ($request->isAjax()) {
             $shortlist = $this->getSessionShortList();
@@ -176,45 +142,18 @@ if (!ShortList::isBrowser()) {
             }
 
             return json_encode(array(
-                'status' => $status,
                 'count' => $this->shortListCount($session),
                 'url' => $url
             ));
         }
 
         if (array_key_exists('output', $request->getVars())) {
-            return true;
+            return $status;
         }
 
         return $this->redirectBack();
     }
 
-    /**
-     * Remove an item from the shortlist.
-     *
-     * @param ID id of the object to remove.
-     * @param type classname of the item to remove
-     * @param session session id.
-     *
-     * */
-    private function removeFromShortList($ID = false, $type = null, $session = false)
-    {
-        $shortlist = $this->getSessionShortList();
-
-        if (!$shortlist || !$shortlist->exists()) {
-            return true;
-        }
-
-        $item = DataObject::get_one('ShortListItem', $filter = "ItemType = '" . $type . "' AND ItemID = " . $ID);
-
-        if ($item && $item->exists()) {
-            $item->delete();
-        } else {
-            return false;
-        }
-
-        return true;
-    }
 
     /**
      * Get the number of items in the current short list.
@@ -239,7 +178,7 @@ if (!ShortList::isBrowser()) {
 
     private function getSessionShortList()
     {
-        return DataObject::get_one('ShortList', $filter = array('SessionID' => session_id()));
+        return DataObject::get_one('ShortList', $filter = array('SessionID' => session_id()), $cache = false);
     }
 
     public static function getShortListSession()
