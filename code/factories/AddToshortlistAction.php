@@ -35,7 +35,7 @@ class AddToshortlistAction extends AbstractShortlistAction
 
         // check whether the itme is already in the list
         // before attempting to add it.
-        $existing = $shortlist->ShortListItems()->filterAny(
+        $existing = $shortlist->ShortListItems()->filter(
             array('ItemID' => $ID, 'ItemType' => $type)
         );
 
