@@ -1,6 +1,7 @@
 # silverstripe-shortlist
 
 [![Build Status](https://scrutinizer-ci.com/g/salted-herring/silverstripe-shortlist/badges/build.png?b=master)](https://scrutinizer-ci.com/g/salted-herring/silverstripe-shortlist/build-status/master) [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/salted-herring/silverstripe-shortlist/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/salted-herring/silverstripe-shortlist/?branch=master) [![Build Status](https://travis-ci.org/salted-herring/silverstripe-shortlist.svg?branch=master)](https://travis-ci.org/salted-herring/silverstripe-shortlist)
+[![License](https://poser.pugx.org/saltedherring/silverstripe-shortlist/license)](https://packagist.org/packages/saltedherring/silverstripe-shortlist)
 
 Session based shortlist module for SilverStripe
 
