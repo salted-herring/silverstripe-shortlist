@@ -114,26 +114,18 @@ class ShortListController extends Page_Controller
         $matches = array();
         preg_match('/remove|add/', $request->getURL(), $matches);
 
-        switch ($matches[0]) {
-            case 'add':
-                $action = new AddToshortlistAction();
-                $status = $action->performAction(
-                    $shortlist = $this->getSessionShortList(),
-                    $ID = $request->getVar('id'),
-                    $type = $request->getVar('type'),
-                    $session = $request->getVar('s')
-                );
-                break;
-            case 'remove':
-                $action = new RemoveFromshortlistAction();
-                $status = $action->performAction(
-                    $shortlist = $this->getSessionShortList(),
-                    $ID = $request->getVar('id'),
-                    $type = $request->getVar('type'),
-                    $session = $request->getVar('s')
-                );
-                break;
+        $action = new AddToshortlistAction();
+
+        if ($matches[0] == 'remove') {
+            $action = new RemoveFromshortlistAction();
         }
+
+        $status = $action->performAction(
+            $shortlist = $this->getSessionShortList(),
+            $ID = $request->getVar('id'),
+            $type = $request->getVar('type'),
+            $session = $request->getVar('s')
+        );
 
         if ($request->isAjax()) {
             $shortlist = $this->getSessionShortList();
