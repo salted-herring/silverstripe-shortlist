@@ -36,12 +36,12 @@ class ShortListController extends Page_Controller
     public function index($request)
     {
         if (($shortlist = $this->getSessionShortList())) {
-            return $this->redirect(Config::inst()->get('ShortList', 'URLSegment') . $shortlist->URL);
+            return $this->redirect(Config::inst()->get('ShortList', 'URLSegment').$shortlist->URL);
         } else {
             $CrawlerDetect = new CrawlerDetect;
 
             // Check the user agent of the current 'visitor'
-            if($CrawlerDetect->isCrawler()) {
+            if ($CrawlerDetect->isCrawler()) {
                 return $this->httpError(403);
             }
 
