@@ -20,6 +20,7 @@
     ],
     "require": {
         "silverstripe/framework": "~3.3",
-        "silverstripe/cms": "~3.3"
+        "silverstripe/cms": "~3.3",
+        "jaybizzle/crawler-detect" :"~1.2.18"
     }
 }

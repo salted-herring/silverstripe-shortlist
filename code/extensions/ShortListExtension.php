@@ -31,13 +31,12 @@ class ShortListExtension extends DataExtension
      * */
     public function getSessionID()
     {
-        Session::start();
-        return session_id();
+        return Utilities::getSecurityToken();
     }
 
     public function getShortList()
     {
-        return DataObject::get_one('ShortList', $filter = array('SessionID' => session_id()));
+        return DataObject::get_one('ShortList', $filter = array('SessionID' => $this->getSessionID()));
     }
 
     public function getShortListCount()

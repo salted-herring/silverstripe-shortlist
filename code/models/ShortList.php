@@ -15,8 +15,8 @@ class ShortList extends DataObject
      * Fields.
      */
     private static $db = array(
-        'SessionID'     => 'varchar(32)',
-        'URL'           => 'Varchar(100)',
+        'SessionID'     => 'varchar(64)',
+        'URL'           => 'Varchar(255)',
         'UserAgent'     => 'Varchar(512)'
     );
 
@@ -58,7 +58,7 @@ class ShortList extends DataObject
             }
 
             // Store the sesion and has information in the database.
-            $this->SessionID = session_id();
+            $this->SessionID = SecurityToken::getSecurityID();
 
             if (is_null($this->SessionID)) {
                 return false;

@@ -1,4 +1,5 @@
 <?php
+use Jaybizzle\CrawlerDetect\CrawlerDetect;
 
 class ShortListController extends Page_Controller
 {
@@ -37,11 +38,12 @@ class ShortListController extends Page_Controller
         if (($shortlist = $this->getSessionShortList())) {
             return $this->redirect(Config::inst()->get('ShortList', 'URLSegment') . $shortlist->URL);
         } else {
-            /*
-if (!ShortList::isBrowser()) {
-                return $this->httpError(404);
+            $CrawlerDetect = new CrawlerDetect;
+
+            // Check the user agent of the current 'visitor'
+            if($CrawlerDetect->isCrawler()) {
+                return $this->httpError(403);
             }
-*/
 
             $shortlist = $this->getSessionShortList();
 
@@ -74,7 +76,7 @@ if (!ShortList::isBrowser()) {
     {
         $shortlist = DataObject::get_one('ShortList', $filter = array('URL' => $request->param('URL')));
 
-        if (is_null(session_id()) ||
+        if (is_null(self::getSecurityToken()) ||
             !$request->param('URL') ||
             !$shortlist ||
             !$shortlist->exists()
@@ -100,11 +102,11 @@ if (!ShortList::isBrowser()) {
 
     public function performAction($request)
     {
-        if (is_null(session_id()) ||
+        if (is_null(self::getSecurityToken()) ||
             !$request->getVar('id') ||
             !$request->getVar('type') ||
             !$request->getVar('s') ||
-            $request->getVar('s') != session_id()
+            $request->getVar('s') != self::getSecurityToken()
         ) {
             return $this->httpError(404);
         }
@@ -163,7 +165,7 @@ if (!ShortList::isBrowser()) {
      * */
     public function shortListCount($session = false)
     {
-        if (is_null(session_id()) || !$session || $session != session_id()) {
+        if (is_null(self::getSecurityToken()) || !$session || $session != self::getSecurityToken()) {
             return false;
         }
 
@@ -178,11 +180,22 @@ if (!ShortList::isBrowser()) {
 
     private function getSessionShortList()
     {
-        return DataObject::get_one('ShortList', $filter = array('SessionID' => session_id()), $cache = false);
+        return DataObject::get_one('ShortList',
+            $filter = array('SessionID' => self::getSecurityToken()),
+            $cache = false
+        );
     }
 
     public static function getShortListSession()
     {
-        return DataObject::get_one('ShortList', $filter = array('SessionID' => session_id()));
+        return DataObject::get_one('ShortList', $filter = array('SessionID' => self::getSecurityToken()));
+    }
+
+    /**
+     * Get the token to use to add/remove from shortlist.
+     * */
+    public static function getSecurityToken()
+    {
+        return Utilities::getSecurityToken();
     }
 }
