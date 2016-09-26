@@ -5,7 +5,7 @@
  * Provides Pagination for shortlist controller
  */
 class ShortListPaginationExtension extends DataExtension {
-	/**
+    /**
      * Get a paginated list of the shortlist items.
      *
      * @return mixed the paginated list of items, or false if the list cannot be found.
@@ -37,7 +37,7 @@ class ShortListPaginationExtension extends DataExtension {
     public function nextPage()
     {
         if ($this->owner->list->CurrentPage() < $this->owner->list->TotalPages()) {
-            return '?page=' . ($this->owner->list->CurrentPage() + 1);
+            return '?page='.($this->owner->list->CurrentPage() + 1);
         }
 
         return false;
@@ -46,7 +46,7 @@ class ShortListPaginationExtension extends DataExtension {
     public function prevPage()
     {
         if ($this->owner->list->CurrentPage() > 1) {
-            return '?page=' . ($this->owner->list->CurrentPage() - 1);
+            return '?page='.($this->owner->list->CurrentPage() - 1);
         }
 
         return false;

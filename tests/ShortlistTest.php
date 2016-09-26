@@ -4,8 +4,8 @@ class ShortlistTest extends FunctionalTest
 {
     protected static $fixture_file = 'fixtures.yml';
 
-	public function testShortlistCreation()
-	{
+    public function testShortlistCreation()
+    {
         $shortlists = ShortList::get();
 
         $this->get('shortlist');
