@@ -17,7 +17,7 @@ class AddToshortlistAction extends AbstractShortlistAction
      *
      * */
     public function performAction(
-        $shortlist = null,
+        ShortList $shortlist = null,
         $ID = false,
         $type = null,
         $session = false)

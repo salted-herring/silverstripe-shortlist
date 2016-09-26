@@ -16,7 +16,7 @@ class RemoveFromshortlistAction extends AbstractShortlistAction
      * @param session session id.
      *
      * */
-    public function performAction($shortlist = null, $ID = false, $type = null, $session = false)
+    public function performAction(ShortList $shortlist = null, $ID = false, $type = null, $session = false)
     {
         if (!$ID || is_null($type) || is_null($shortlist)) {
             return false;

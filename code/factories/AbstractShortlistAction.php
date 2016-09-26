@@ -19,7 +19,7 @@ abstract class AbstractShortlistAction
      *
      * */
     public abstract function performAction(
-        $shortlist = null,
+        ShortList $shortlist = null,
         $ID = false,
         $type = null,
         $session = false
