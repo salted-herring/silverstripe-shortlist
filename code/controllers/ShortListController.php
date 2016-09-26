@@ -1,5 +1,4 @@
 <?php
-use Jaybizzle\CrawlerDetect\CrawlerDetect;
 
 class ShortListController extends Page_Controller
 {
@@ -38,12 +37,6 @@ class ShortListController extends Page_Controller
         if (($shortlist = $this->getSessionShortList())) {
             return $this->redirect(Config::inst()->get('ShortList', 'URLSegment').$shortlist->URL);
         } else {
-            $CrawlerDetect = new CrawlerDetect;
-
-            // Check the user agent of the current 'visitor'
-            if ($CrawlerDetect->isCrawler()) {
-                return $this->httpError(403);
-            }
 
             $shortlist = $this->getSessionShortList();
 
@@ -101,14 +94,7 @@ class ShortListController extends Page_Controller
             return $this->httpError(404);
         }
 
-        $matches = array();
-        preg_match('/remove|add/', $request->getURL(), $matches);
-
-        $action = new AddToshortlistAction();
-
-        if ($matches[0] == 'remove') {
-            $action = new RemoveFromshortlistAction();
-        }
+        $action = $this->determineAction($request->getURL());
 
         $status = $action->performAction(
             $shortlist = $this->getSessionShortList(),
@@ -118,17 +104,7 @@ class ShortListController extends Page_Controller
         );
 
         if ($request->isAjax()) {
-            $shortlist = $this->getSessionShortList();
-            $url = false;
-
-            if ($shortlist && $shortlist->exists()) {
-                $url = $shortlist->Link();
-            }
-
-            return json_encode(array(
-                'count' => $this->shortListCount($session),
-                'url' => $url
-            ));
+            return $this->renderAjax($session);
         }
 
         if (array_key_exists('output', $request->getVars())) {
@@ -174,11 +150,29 @@ class ShortListController extends Page_Controller
     }
 
     /**
+     * Determine the action based upon the url requested.
+     * */
+    private function determineAction($url)
+    {
+        $matches = array();
+        preg_match('/remove|add/', $url, $matches);
+
+        switch ($matches[0]) {
+            case 'remove':
+                return new RemoveFromshortlistAction();
+            case 'add':
+                return new AddToshortlistAction();
+        }
+
+        return null;
+    }
+
+    /**
      * Return a valid shortlist - or null.
      * */
     private function getSessionShortList()
     {
-        return (ShortList)DataObject::get_one('ShortList',
+        return DataObject::get_one('ShortList',
             $filter = array('SessionID' => self::getSecurityToken()),
             $cache = false
         );
@@ -187,7 +181,8 @@ class ShortListController extends Page_Controller
     /**
      * Return the json encoded count & url for the current session
      * */
-    private function renderAjax($session) {
+    private function renderAjax($session)
+    {
         $shortlist = $this->getSessionShortList();
         $url = false;
 
