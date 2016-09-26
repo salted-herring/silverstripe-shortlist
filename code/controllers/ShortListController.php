@@ -1,5 +1,4 @@
 <?php
-// use Jaybizzle\CrawlerDetect\CrawlerDetect;
 
 class ShortListController extends Page_Controller
 {
@@ -38,14 +37,6 @@ class ShortListController extends Page_Controller
         if (($shortlist = $this->getSessionShortList())) {
             return $this->redirect(Config::inst()->get('ShortList', 'URLSegment').$shortlist->URL);
         } else {
-/*
-            $CrawlerDetect = new CrawlerDetect;
-
-            // Check the user agent of the current 'visitor'
-            if ($CrawlerDetect->isCrawler()) {
-                return $this->httpError(403);
-            }
-*/
 
             $shortlist = $this->getSessionShortList();
 
@@ -103,14 +94,7 @@ class ShortListController extends Page_Controller
             return $this->httpError(404);
         }
 
-        $action = new AddToshortlistAction();
-        $matches = array();
-
-        preg_match('/remove|add/', $request->getURL(), $matches);
-
-        if ($matches[0] == 'remove') {
-            $action = new RemoveFromshortlistAction();
-        }
+        $action = $this->determineAction($request->getURL());
 
         $status = $action->performAction(
             $shortlist = $this->getSessionShortList(),
@@ -163,6 +147,19 @@ class ShortListController extends Page_Controller
     public static function getSecurityToken()
     {
         return Utilities::getSecurityToken();
+    }
+
+    private function determineAction($url) {
+        preg_match('/remove|add/', $url, $matches = array());
+
+        switch ($matches[0]) {
+            case 'remove':
+                return new RemoveFromshortlistAction();
+            case 'add':
+                return new AddToshortlistAction();
+        }
+
+        return null;
     }
 
     /**
