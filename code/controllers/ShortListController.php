@@ -75,17 +75,12 @@ class ShortListController extends Page_Controller
     public function renderList($request)
     {
         $shortlist = DataObject::get_one('ShortList', $filter = array('URL' => $request->param('URL')));
-
-        if (is_null(self::getSecurityToken()) ||
-            !$request->param('URL') ||
-            !$shortlist ||
-            !$shortlist->exists()
-        ) {
-            return $this->httpError(404);
-        }
-
         $link = false;
         $count = 0;
+
+        if ($this->dontRender($shortlist, $request)) {
+            return $this->httpError(404);
+        }
 
         if ($shortlist && $shortlist->exists()) {
             $link = $shortlist->Link();
@@ -102,12 +97,7 @@ class ShortListController extends Page_Controller
 
     public function performAction($request)
     {
-        if (is_null(self::getSecurityToken()) ||
-            !$request->getVar('id') ||
-            !$request->getVar('type') ||
-            !$request->getVar('s') ||
-            $request->getVar('s') != self::getSecurityToken()
-        ) {
+        if ($this->dontPerformAction($request)) {
             return $this->httpError(404);
         }
 
@@ -172,10 +162,27 @@ class ShortListController extends Page_Controller
 
     private function getSessionShortList()
     {
-        return DataObject::get_one('ShortList',
+        return (ShortList) DataObject::get_one('ShortList',
             $filter = array('SessionID' => self::getSecurityToken()),
             $cache = false
         );
+    }
+
+    /**
+     * Don't render the template!
+     * */
+    private function dontRender($shortlist, $request)
+    {
+        return is_null(self::getSecurityToken()) || !$request->param('URL') || !$shortlist || !$shortlist->exists();
+    }
+
+    /**
+     * Don't perform an action.
+     * */
+    private function dontPerformAction($request)
+    {
+        return is_null(self::getSecurityToken()) || !$request->getVar('id') || !$request->getVar('type') ||
+            !$request->getVar('s') || $request->getVar('s') != self::getSecurityToken();
     }
 
     public static function getShortListSession()
