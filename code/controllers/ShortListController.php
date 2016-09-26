@@ -101,10 +101,10 @@ class ShortListController extends Page_Controller
             return $this->httpError(404);
         }
 
-        $matches = array();
-        preg_match('/remove|add/', $request->getURL(), $matches);
-
         $action = new AddToshortlistAction();
+        $matches = array();
+
+        preg_match('/remove|add/', $request->getURL(), $matches);
 
         if ($matches[0] == 'remove') {
             $action = new RemoveFromshortlistAction();
@@ -118,17 +118,7 @@ class ShortListController extends Page_Controller
         );
 
         if ($request->isAjax()) {
-            $shortlist = $this->getSessionShortList();
-            $url = false;
-
-            if ($shortlist && $shortlist->exists()) {
-                $url = $shortlist->Link();
-            }
-
-            return json_encode(array(
-                'count' => $this->shortListCount($session),
-                'url' => $url
-            ));
+            return $this->renderAjax($session);
         }
 
         if (array_key_exists('output', $request->getVars())) {
@@ -178,7 +168,7 @@ class ShortListController extends Page_Controller
      * */
     private function getSessionShortList()
     {
-        return (ShortList)DataObject::get_one('ShortList',
+        return DataObject::get_one('ShortList',
             $filter = array('SessionID' => self::getSecurityToken()),
             $cache = false
         );
@@ -188,7 +178,7 @@ class ShortListController extends Page_Controller
      * Return the json encoded count & url for the current session
      * */
     private function renderAjax($session) {
-        $shortlist = $this->getSessionShortList();
+        $shortlist = (ShortList)$this->getSessionShortList();
         $url = false;
 
         if ($shortlist && $shortlist->exists()) {
