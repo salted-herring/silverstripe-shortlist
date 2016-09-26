@@ -22,7 +22,7 @@ class RemoveFromshortlistAction extends AbstractShortlistAction
             return false;
         }
 
-        $query = "ItemType = '" . $type . "' AND ItemID = " . $ID . ' AND ShortListID = ' . $shortlist->ID;
+        $query = "ItemType = '".$type."' AND ItemID = ".$ID.' AND ShortListID = '.$shortlist->ID;
 
         $item = DataObject::get_one('ShortListItem', $filter = $query);
 

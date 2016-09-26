@@ -81,7 +81,7 @@ class ShortList extends DataObject
      */
     public function Link($action = null)
     {
-        return Config::inst()->get('ShortList', 'URLSegment') . $this->URL;
+        return Config::inst()->get('ShortList', 'URLSegment').$this->URL;
     }
 
     /**

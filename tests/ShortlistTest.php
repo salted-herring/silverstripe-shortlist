@@ -4,8 +4,8 @@ class ShortlistTest extends FunctionalTest
 {
     protected static $fixture_file = 'fixtures.yml';
 
-	public function testShortlistCreation()
-	{
+    public function testShortlistCreation()
+    {
         $shortlists = ShortList::get();
 
         $this->get('shortlist');
@@ -47,7 +47,7 @@ class ShortlistTest extends FunctionalTest
         Session::start();
         $sessionID = session_id();
 
-        $response = $this->get('shortlist/add?id=' . $testpage->ID . '&type=Page&s=' . $sessionID . '&output=0');
+        $response = $this->get('shortlist/add?id='.$testpage->ID.'&type=Page&s='.$sessionID.'&output=0');
 
         $shortlist = DataObject::get_one('ShortList', array('SessionID' => $sessionID));
 
@@ -61,11 +61,11 @@ class ShortlistTest extends FunctionalTest
         Session::start();
         $sessionID = session_id();
 
-        $this->get('shortlist/add?id=' . $testpage->ID . '&type=Page&s=' . $sessionID . '&output=0');
+        $this->get('shortlist/add?id='.$testpage->ID.'&type=Page&s='.$sessionID.'&output=0');
 
         $shortlist = DataObject::get_one('ShortList', array('SessionID' => $sessionID));
 
-        $this->get('shortlist/remove?id=' . $testpage->ID . '&type=Page&s=' . $sessionID . '&output=0');
+        $this->get('shortlist/remove?id='.$testpage->ID.'&type=Page&s='.$sessionID.'&output=0');
 
         $this->assertEquals($shortlist->ShortListItems()->Count(), 0);
     }
