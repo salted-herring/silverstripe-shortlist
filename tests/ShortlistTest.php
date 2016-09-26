@@ -66,7 +66,7 @@ class ShortlistTest extends FunctionalTest
 
         $shortlist->ShortListItems()->remove($item);
 
-         // do we have an item removed?
+            // do we have an item removed?
         $this->assertEquals($shortlist->ShortListItems()->Count(), 0);
     }
 }
