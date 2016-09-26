@@ -16,8 +16,6 @@ class ShortlistTest extends FunctionalTest
     public function testAddItemtoShortList()
     {
         $testpage = $this->objFromFixture('Page', 'page1');
-        Session::start();
-        $sessionID = session_id();
 
         // create the shortlist
         $shortlist = new ShortList();
@@ -41,32 +39,34 @@ class ShortlistTest extends FunctionalTest
         $this->assertNotEquals($item->ShortList()->ID, 0);
     }
 
-    public function testAddPageToShortlist() {
+    public function testRemoveItemFromShortList()
+    {
         $testpage = $this->objFromFixture('Page', 'page1');
-        $shortlist = $this->objFromFixture('ShortList', 'test');
-        Session::start();
-        $sessionID = session_id();
 
-        $response = $this->get('shortlist/add?id=' . $testpage->ID . '&type=Page&s=' . $sessionID . '&output=0');
+        // create the shortlist
+        $shortlist = new ShortList();
+        $shortlist->write();
 
-        $shortlist = DataObject::get_one('ShortList', array('SessionID' => $sessionID));
+        $this->assertEquals($shortlist->ShortListItems()->Count(), 0);
 
+        // create the item.
+        $item = new ShortListItem();
+        $item->ItemType = $testpage->ClassName;
+        $item->ItemID = $testpage->ID;
+        $item->write();
+
+        // add to the shortlist.
+        $shortlist->ShortListItems()->add($item);
+        $shortlist->write();
+
+        // do we have an item added?
         $this->assertNotEquals($shortlist->ShortListItems()->Count(), 0);
-    }
+        // what about the reverse side?
+        $this->assertNotEquals($item->ShortList()->ID, 0);
 
-    public function testRemovePageFromShortlist() {
-        $shortlist = $this->objFromFixture('ShortList', 'test');
-        $testpage = $this->objFromFixture('Page', 'page1');
+        $shortlist->ShortListItems()->remove($item);
 
-        Session::start();
-        $sessionID = session_id();
-
-        $this->get('shortlist/add?id=' . $testpage->ID . '&type=Page&s=' . $sessionID . '&output=0');
-
-        $shortlist = DataObject::get_one('ShortList', array('SessionID' => $sessionID));
-
-        $this->get('shortlist/remove?id=' . $testpage->ID . '&type=Page&s=' . $sessionID . '&output=0');
-
+         // do we have an item removed?
         $this->assertEquals($shortlist->ShortListItems()->Count(), 0);
     }
 }

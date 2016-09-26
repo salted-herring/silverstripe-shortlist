@@ -1,5 +1,5 @@
 <?php
-use Jaybizzle\CrawlerDetect\CrawlerDetect;
+// use Jaybizzle\CrawlerDetect\CrawlerDetect;
 
 class ShortListController extends Page_Controller
 {
@@ -38,12 +38,14 @@ class ShortListController extends Page_Controller
         if (($shortlist = $this->getSessionShortList())) {
             return $this->redirect(Config::inst()->get('ShortList', 'URLSegment').$shortlist->URL);
         } else {
+/*
             $CrawlerDetect = new CrawlerDetect;
 
             // Check the user agent of the current 'visitor'
             if ($CrawlerDetect->isCrawler()) {
                 return $this->httpError(403);
             }
+*/
 
             $shortlist = $this->getSessionShortList();
 
@@ -177,7 +179,8 @@ class ShortListController extends Page_Controller
     /**
      * Return the json encoded count & url for the current session
      * */
-    private function renderAjax($session) {
+    private function renderAjax($session)
+    {
         $shortlist = $this->getSessionShortList();
         $url = false;
 

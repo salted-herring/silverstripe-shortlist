@@ -116,16 +116,16 @@
         },
         {
             "name": "jaybizzle/crawler-detect",
-            "version": "v1.2.18",
+            "version": "v1.2.19",
             "source": {
                 "type": "git",
                 "url": "https://github.com/JayBizzle/Crawler-Detect.git",
-                "reference": "1b41bb4c371a9504374e2f232e50967909c05f0f"
+                "reference": "1f6ed13bbf89915aa5df15490b3d52721917e26e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/JayBizzle/Crawler-Detect/zipball/1b41bb4c371a9504374e2f232e50967909c05f0f",
-                "reference": "1b41bb4c371a9504374e2f232e50967909c05f0f",
+                "url": "https://api.github.com/repos/JayBizzle/Crawler-Detect/zipball/1f6ed13bbf89915aa5df15490b3d52721917e26e",
+                "reference": "1f6ed13bbf89915aa5df15490b3d52721917e26e",
                 "shasum": ""
             },
             "require": {
@@ -160,7 +160,7 @@
                 "crawlerdetect",
                 "php crawler detect"
             ],
-            "time": "2016-09-16 17:41:40"
+            "time": "2016-09-26 19:30:19"
         },
         {
             "name": "silverstripe/cms",
