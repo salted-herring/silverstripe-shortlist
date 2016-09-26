@@ -178,7 +178,7 @@ class ShortListController extends Page_Controller
      * Return the json encoded count & url for the current session
      * */
     private function renderAjax($session) {
-        $shortlist = (ShortList)$this->getSessionShortList();
+        $shortlist = $this->getSessionShortList();
         $url = false;
 
         if ($shortlist && $shortlist->exists()) {
