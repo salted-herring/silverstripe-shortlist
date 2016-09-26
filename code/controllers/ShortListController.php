@@ -162,7 +162,7 @@ class ShortListController extends Page_Controller
 
     private function getSessionShortList()
     {
-        return (ShortList) DataObject::get_one('ShortList',
+        return (ShortList)DataObject::get_one('ShortList',
             $filter = array('SessionID' => self::getSecurityToken()),
             $cache = false
         );
