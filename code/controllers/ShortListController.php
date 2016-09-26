@@ -149,8 +149,13 @@ class ShortListController extends Page_Controller
         return Utilities::getSecurityToken();
     }
 
-    private function determineAction($url) {
-        preg_match('/remove|add/', $url, $matches = array());
+    /**
+     * Determine the action based upon the url requested.
+     * */
+    private function determineAction($url)
+    {
+        $matches = array();
+        preg_match('/remove|add/', $url, $matches);
 
         switch ($matches[0]) {
             case 'remove':
