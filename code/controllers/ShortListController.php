@@ -147,7 +147,7 @@ class ShortListController extends Page_Controller
      * */
     public function shortListCount($session = false)
     {
-        if (is_null(self::getSecurityToken()) || !$session || $session != self::getSecurityToken()) {
+        if ($this->isSessionValid($session)) {
             return false;
         }
 
@@ -158,31 +158,6 @@ class ShortListController extends Page_Controller
         }
 
         return $shortlist->Items()->count();
-    }
-
-    private function getSessionShortList()
-    {
-        return (ShortList)DataObject::get_one('ShortList',
-            $filter = array('SessionID' => self::getSecurityToken()),
-            $cache = false
-        );
-    }
-
-    /**
-     * Don't render the template!
-     * */
-    private function dontRender($shortlist, $request)
-    {
-        return is_null(self::getSecurityToken()) || !$request->param('URL') || !$shortlist || !$shortlist->exists();
-    }
-
-    /**
-     * Don't perform an action.
-     * */
-    private function dontPerformAction($request)
-    {
-        return is_null(self::getSecurityToken()) || !$request->getVar('id') || !$request->getVar('type') ||
-            !$request->getVar('s') || $request->getVar('s') != self::getSecurityToken();
     }
 
     public static function getShortListSession()
@@ -196,5 +171,57 @@ class ShortListController extends Page_Controller
     public static function getSecurityToken()
     {
         return Utilities::getSecurityToken();
+    }
+
+    /**
+     * Return a valid shortlist - or null.
+     * */
+    private function getSessionShortList()
+    {
+        return (ShortList)DataObject::get_one('ShortList',
+            $filter = array('SessionID' => self::getSecurityToken()),
+            $cache = false
+        );
+    }
+
+    /**
+     * Return the json encoded count & url for the current session
+     * */
+    private function renderAjax($session) {
+        $shortlist = $this->getSessionShortList();
+        $url = false;
+
+        if ($shortlist && $shortlist->exists()) {
+            $url = $shortlist->Link();
+        }
+
+        return json_encode(array(
+            'count' => $this->shortListCount($session),
+            'url' => $url
+        ));
+    }
+
+    /**
+     * Don't render the template!
+     * */
+    private function dontRender($shortlist, $request)
+    {
+        return is_null(self::getSecurityToken()) || !$request->param('URL') || !$shortlist || !$shortlist->exists();
+    }
+
+    /**
+     * Is this session valid?
+     * */
+    private function isSessionValid($session) {
+        return is_null(self::getSecurityToken()) || !$session || $session != self::getSecurityToken();
+    }
+
+    /**
+     * Don't perform an action.
+     * */
+    private function dontPerformAction($request)
+    {
+        return is_null(self::getSecurityToken()) || !$request->getVar('id') || !$request->getVar('type') ||
+            !$request->getVar('s') || $request->getVar('s') != self::getSecurityToken();
     }
 }
