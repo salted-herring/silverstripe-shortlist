@@ -3,7 +3,18 @@ Page:
     Title: test
   page2:
     Title: test2
+  page3:
+    Title: test3
+ShortListItem:
+    item1:
+        ItemType: 'Page'
+        ItemID: =>Page.page1
+    item2:
+        ItemType: 'Page'
+        ItemID: =>Page.page2
+    item3:
+        ItemType: 'Page'
+        ItemID: =>Page.page3
 ShortList:
   test:
-    SessionID: b256ae125c202778eaee0fdf78b61113b7a8096a
     URL: 8fac5a9ccfb30737840f8b0402512468

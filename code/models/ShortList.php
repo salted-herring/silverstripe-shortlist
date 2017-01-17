@@ -46,19 +46,19 @@ class ShortList extends DataObject
         // Run other beforewrites first.
         parent::onBeforeWrite();
 
-        if (!$this->isBrowser()) {
-            return false;
-        }
+        // if (!$this->isBrowser()) {
+        //     return false;
+        // }
 
         // If this is the first save...
-        if (!$this->ID) {
+        if (!$this->isInDB()) {
             // Ensure the session exists before querying it.
             if (!Session::request_contains_session_id()) {
                 Session::start();
             }
 
-            // Store the sesion and has information in the database.
-            $this->SessionID = SecurityToken::getSecurityID();
+            // Store the sesion and in the database.
+            $this->SessionID = SecurityToken::inst()->getValue();
 
             if (is_null($this->SessionID)) {
                 return false;

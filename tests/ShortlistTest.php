@@ -15,7 +15,8 @@ class ShortlistTest extends FunctionalTest
 
     public function testAddItemtoShortList()
     {
-        $testpage = $this->objFromFixture('Page', 'page1');
+        $testpage = $this->objFromFixture('ShortListItem', 'item1');
+        $testpage->write();
 
         // create the shortlist
         $shortlist = new ShortList();
@@ -23,20 +24,20 @@ class ShortlistTest extends FunctionalTest
 
         $this->assertEquals($shortlist->ShortListItems()->Count(), 0);
 
-        // create the item.
-        $item = new ShortListItem();
-        $item->ItemType = $testpage->ClassName;
-        $item->ItemID = $testpage->ID;
-        $item->write();
-
         // add to the shortlist.
-        $shortlist->ShortListItems()->add($item);
+        $shortlist->ShortListItems()->add($testpage);
         $shortlist->write();
+
+        $retrievedItem = $shortlist->ShortListItems()->filter('ID', $testpage->ID)->first()->getActualRecord();
+
+        // Check the item has been saved correctly
+        $this->assertEquals($retrievedItem->ClassName, 'Page');
+        $this->assertEquals($retrievedItem->ID, $testpage->ID);
 
         // do we have an item added?
         $this->assertNotEquals($shortlist->ShortListItems()->Count(), 0);
         // what about the reverse side?
-        $this->assertNotEquals($item->ShortList()->ID, 0);
+        $this->assertNotEquals($testpage->ShortList()->ID, 0);
     }
 
     public function testRemoveItemFromShortList()
@@ -68,5 +69,36 @@ class ShortlistTest extends FunctionalTest
 
             // do we have an item removed?
         $this->assertEquals($shortlist->ShortListItems()->Count(), 0);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Check whether we are or are not a browser.
+    |--------------------------------------------------------------------------
+    */
+    public function testisBrowser()
+    {
+        $list = $this->objFromFixture('ShortList', 'test');
+        $ua = Controller::curr()->getRequest()->getHeader('User-Agent');
+
+        if (empty(strtolower($ua))) {
+            $this->assertFalse($list->isBrowser());
+        } else {
+            $this->assertTrue($list->isBrowser());
+        }
+    }
+
+    public function testShortListLink()
+    {
+        $list = $this->objFromFixture('ShortList', 'test');
+        $list->write();
+
+        $configURL = Config::inst()->get('ShortList', 'URLSegment');
+        $link = $list->Link();
+
+        $configPos = strpos($link, $configURL);
+        $linkPos = strpos($link, $list->URL);
+
+        $this->assertGreaterThan($configPos, $linkPos);
     }
 }
