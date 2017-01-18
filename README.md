@@ -64,7 +64,6 @@ The other templates provided are:
 
 - [ ] Ensure that URL Segment can dynamically generate the route.
 - [ ] Supply AJAX example use of pagination & add/remove links.
-- [ ] Fix unit tests so they work in travis.
 
 ## Coding Standards
 
