@@ -34,12 +34,11 @@ class ShortListController extends Page_Controller
      * */
     public function index($request)
     {
-        if (($shortlist = $this->getSessionShortList())) {
-            return $this->redirect(Config::inst()->get('ShortList', 'URLSegment').$shortlist->URL);
+        $shortlist = $this->getSessionShortList();
+
+        if (!empty($shortlist)) {
+            return $this->redirect(Config::inst()->get('ShortList', 'URLSegment') . $shortlist->URL);
         } else {
-
-            $shortlist = $this->getSessionShortList();
-
             if (!$shortlist || !$shortlist->exists()) {
                 $shortlist = new ShortList();
                 $shortlist->write();
@@ -162,9 +161,9 @@ class ShortListController extends Page_Controller
                 return new RemoveFromshortlistAction();
             case 'add':
                 return new AddToshortlistAction();
+            default:
+                return null;
         }
-
-        return null;
     }
 
     /**
@@ -207,7 +206,8 @@ class ShortListController extends Page_Controller
     /**
      * Is this session valid?
      * */
-    private function isSessionValid($session) {
+    private function isSessionValid($session)
+    {
         return is_null(self::getSecurityToken()) || !$session || $session != self::getSecurityToken();
     }
 
