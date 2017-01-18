@@ -165,7 +165,7 @@ class ShortlistTest extends FunctionalTest
         $this->assertEmpty($list);
 
         $id = $this->fixtureFactory->getId('Page', 'page1');
-        $response = $this->get($url . 'add/?id=' . $id . '&type=Page&s=' . Utilities::getSecurityToken());
+        $response = $this->get($url.'add/?id='.$id.'&type=Page&s='.Utilities::getSecurityToken());
 
         $list = ShortListController::getShortListSession();
 
@@ -191,14 +191,14 @@ class ShortlistTest extends FunctionalTest
         $this->assertEmpty($list);
 
         $id = $this->fixtureFactory->getId('Page', 'page1');
-        $response = $this->get($url . 'add/?id=' . $id . '&type=Page&s=' . Utilities::getSecurityToken());
+        $response = $this->get($url.'add/?id='.$id.'&type=Page&s='.Utilities::getSecurityToken());
 
         $list = ShortListController::getShortListSession();
 
         $this->assertNotEmpty($list);
         $this->assertEquals($list->ShortListItems()->count(), 1);
 
-        $this->get($url . 'remove/?id=' . $id . '&type=Page&s=' . Utilities::getSecurityToken());
+        $this->get($url.'remove/?id='.$id.'&type=Page&s='.Utilities::getSecurityToken());
         $this->assertEquals($list->ShortListItems()->count(), 0);
     }
 
@@ -210,7 +210,7 @@ class ShortlistTest extends FunctionalTest
     public function testShortListControllerPagination()
     {
         $url = Config::inst()->get('ShortList', 'URLSegment');
-        $response = $this->get($url . '?page=1');
+        $response = $this->get($url.'?page=1');
 
         $this->assertEquals($response->getStatusCode(), 200);
     }
@@ -234,7 +234,7 @@ class ShortlistTest extends FunctionalTest
         $this->assertEmpty($list);
 
         $id = $this->fixtureFactory->getId('Page', 'page1');
-        $response = $this->get($url . 'add/?id=' . $id . '&type=Page&s=' . Utilities::getSecurityToken());
+        $response = $this->get($url.'add/?id='.$id.'&type=Page&s='.Utilities::getSecurityToken());
 
         $response = $this->get($url);
     }
@@ -252,7 +252,7 @@ class ShortlistTest extends FunctionalTest
         $this->assertEmpty($list);
 
         $id = $this->fixtureFactory->getId('Page', 'page1');
-        $response = $this->get($url . 'add/?id=' . $id . '&type=Page');
+        $response = $this->get($url.'add/?id='.$id.'&type=Page');
 
         $this->assertEquals($response->getStatusCode(), 404);
     }
